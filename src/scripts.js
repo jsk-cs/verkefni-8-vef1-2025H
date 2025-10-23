@@ -12,7 +12,7 @@ import {
  */
 function initialize(todolist) {
   const form = document.querySelector(".form");
-  const textarea = form.querySelector("input[type=text]");
+  const textarea = document.querySelector(".form input[type=text]");
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const text = textarea.value.trim();
