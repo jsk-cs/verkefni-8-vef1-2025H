@@ -82,18 +82,18 @@ export function clearList(todolist) {
 
 /**
  * Uppfærir upplýsingar um fjölda kláraðra og ókláraðra atriða í lista.
- * @param {Element | null} todolist
+ * @param {Element | null} todoList
  * @return {void}
  */
-export function updateStats(todolist) {
-  if (!todolist) return;
+export function updateStats(todoList) {
+  if (!todoList) return;
 
-  const items = todolist.querySelectorAll("ul.list li");
+  const items = todoList.querySelectorAll("ul.list li");
   const total = items.length;
-  const completed = todolist.querySelectorAll("ul.list li input[type='checkbox']:checked").length;
+  const completed = todoList.querySelectorAll("ul.list li input[type='checkbox']:checked").length;
 
-  const completedEl = todolist.querySelector(".stats .finished");
-  const uncompletedEl = todolist.querySelector(".stats .unfinished");
+  const completedEl = todoList.querySelector(".stats .finished");
+  const uncompletedEl = todoList.querySelector(".stats .unfinished");
 
   if (completedEl && uncompletedEl) {
     completedEl.textContent = completed;
