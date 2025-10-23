@@ -1,8 +1,4 @@
-/* TODO hugsanlega importa el, empty úr ./elements.js */
-
-// Leyfilegt að breyta skilgreiningum á föllum og bæta við fleiri föllum.
-
-/* TODO merkja viðeigandi föll með `export` */
+import { el, empty } from "./elements.js";
 
 /**
  * Breytir stöðu atriðis í lista. Ef kláruð atriði eru sýnd er það sýnt, annars er það falið um leið og það er klárað.
@@ -10,8 +6,24 @@
  * @param {boolean} isShown `true` ef kláruð atriði eru sýnileg, annars `false`.
  * @returns {void}
  */
-function toggleTodoItemStatus(item, isShown = true) {
-  /* TODO útfæra */
+export function toggleTodoItemStatus(item, isShown = true) {
+  const checkbox = item.querySelector('input[type="checkbox"]');
+  
+  if (checkbox.checked) {
+    item.classList.add("finished");
+    if (!isShown) {
+      item.classList.add("hidden");
+    } else {
+      item.classList.remove("hidden");
+    }
+  } else {
+    item.classList.remove("finished");
+    item.classList.remove("hidden");
+  }
+
+  const list = item.closest(".todo-list");
+  updateStats(list);
+  checkListState(list);
 }
 
 /**
@@ -19,8 +31,11 @@ function toggleTodoItemStatus(item, isShown = true) {
  * @param {HTMLElement} item
  * @returns {void}
  */
-function removeTodoItem(item) {
-  /* TODO útfæra */
+export function removeTodoItem(item) {
+  const list = item.closest(".todo-list");
+  item.remove();
+  updateStats(list);
+  checkListState(list);
 }
 
 /**
@@ -28,8 +43,29 @@ function removeTodoItem(item) {
  * @param {HTMLElement} todolist
  * @return {boolean} `true` if finished items are shown, `false` if hidden
  */
-function toggleFinished(todolist) {
-  /* TODO útfæra */
+export function toggleFinished(todolist) {
+  const button = todolist.querySelector(".toggle-finished");
+  const showCompleted = button.textContent.includes("Sýna");
+
+  const items = todolist.querySelectorAll("ul.list li");
+  items.forEach((item) => {
+    const checkbox = item.querySelector('input[type="checkbox"]');
+    if (checkbox.checked) {
+      if (showCompleted) {
+        item.classList.remove("hidden");
+      } else {
+        item.classList.add("hidden");
+      }
+    }
+  });
+
+  button.textContent = showCompleted
+    ? "Fela kláruð atriði"
+    : "Sýna kláruð atriði";
+
+  updateStats(todolist);
+  checkListState(todolist);
+  return !showCompleted;
 }
 
 /**
@@ -37,17 +73,32 @@ function toggleFinished(todolist) {
  * @param {HTMLElement} todolist
  * @return {void}
  */
-function clearList(todolist) {
-  /* TODO útfæra */
+export function clearList(todolist) {
+  const list = todolist.querySelector("ul.list");
+  empty(list);
+  updateStats(todolist);
+  checkListState(todolist);
 }
 
 /**
  * Uppfærir upplýsingar um fjölda kláraðra og ókláraðra atriða í lista.
- * @param {Element | null} todoList
+ * @param {Element | null} todolist
  * @return {void}
  */
-function updateStats(todoList) {
-  /* TODO útfæra */
+export function updateStats(todolist) {
+  if (!todolist) return;
+
+  const items = todolist.querySelectorAll("ul.list li");
+  const total = items.length;
+  const completed = todolist.querySelectorAll("ul.list li input[type='checkbox']:checked").length;
+
+  const completedEl = todolist.querySelector(".stats .finished");
+  const uncompletedEl = todolist.querySelector(".stats .unfinished");
+
+  if (completedEl && uncompletedEl) {
+    completedEl.textContent = completed;
+    uncompletedEl.textContent = total - completed;
+  }
 }
 
 /**
@@ -56,8 +107,34 @@ function updateStats(todoList) {
  * @param {string} text
  * @return {void}
  */
-function createTodoItem(todolist, text) {
-  /* TODO útfæra */
+export function createTodoItem(todolist, text) {
+  const trimmed = text.trim();
+  if (!trimmed || trimmed === '') return;
+
+  const checkbox = el("input", { type: "checkbox" });
+  const span = el("span", { class: "item" }, trimmed);
+  const deleteButton = el("button", {}, "🗑️");
+  const li = el("li", {}, checkbox, span, deleteButton);
+
+  const ul = todolist.querySelector("ul.list");
+  ul.appendChild(li);
+
+  if (ul.classList.contains("hidden")) {
+    ul.classList.remove("hidden");
+  }
+
+  checkbox.addEventListener("change", () => {
+    const button = todolist.querySelector(".toggle-finished");
+    const showCompleted = button ? !button.textContent.includes("Sýna") : true;
+    toggleTodoItemStatus(li, showCompleted);
+  });
+
+  deleteButton.addEventListener("click", () => {
+    removeTodoItem(li);
+  });
+
+  updateStats(todolist);
+  checkListState(todolist);
 }
 
 /**
@@ -65,6 +142,16 @@ function createTodoItem(todolist, text) {
  * @param {HTMLElement} todolist
  * @return {void}
  */
-function checkListState(todolist) {
-  /* TODO útfæra */
+export function checkListState(todolist) {
+  const emptyMessage = todolist.querySelector(".empty");
+  const ul = todolist.querySelector("ul.list");
+  const visibleItems = Array.from(ul.querySelectorAll("li:not(.hidden)"));
+
+  if (visibleItems.length === 0) {
+    emptyMessage.classList.remove("hidden");
+    ul.classList.add("hidden");
+  } else {
+    emptyMessage.classList.add("hidden");
+    ul.classList.remove("hidden");
+  }
 }
